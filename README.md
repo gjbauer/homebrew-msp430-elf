@@ -8,7 +8,7 @@ Microcontrollers, also known as [TI MSP430-GCC][]. This repository includes
 
 To get everything, execute the following commands.
 
-    $ brew tap tgtakaoka/msp430-elf
+    $ brew tap gjbauer/msp430-elf
     $ brew install gcc-msp430-elf gdb-msp430-elf
 
 You may want to install `mspdebug-head` by the following commands.
