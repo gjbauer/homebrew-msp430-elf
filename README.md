@@ -25,6 +25,10 @@ For Linux, the following packages are necessary to compile these formulae.
   * `zlib1g-dev`
   * `texinfo`
 
+### NOTE: If on macOS, one must also run the following before attempting to install any packages
+
+`brew trust gjbauer/msp430-elf`
+
 Version:
 
 ```
