@@ -20,10 +20,11 @@ class BinutilsMsp430Elf < Formula
     target_include = HOMEBREW_PREFIX/"include/#{target}/include"
     on_macos do
       if !Dir.exist?(target_lib) && !Dir.exist?(target_include)
-        odie "You need to manually create #{target_lib} and #{target_include}"
-        odie "You can create these directories with commands such as the following"
-        odie "sudo mkdir -p /path/to/lib"
-        odie "sudo chown -R $(whoami):admin /path/to/lib"
+        ohai "You need to manually create #{target_lib} and #{target_include}"
+        ohai "You can create these directories with commands such as the following"
+        ohai "sudo mkdir -p /path/to/lib"
+        ohai "sudo chown -R $(whoami):admin /path/to/lib"
+        raise BuildError.new(self, "Failed because of missing installation directories.")
       end
     end
     mkdir "build" do
