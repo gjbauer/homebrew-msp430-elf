@@ -24,7 +24,7 @@ class BinutilsMsp430Elf < Formula
         ohai "You can create these directories with commands such as the following"
         ohai "sudo mkdir -p /path/to/lib"
         ohai "sudo chown -R $(whoami):admin /path/to/lib"
-        raise BuildError.new(self, "Failed because of missing installation directories.")
+        raise FormulaInstallationError, "Failed because of missing installation directories."
       end
     end
     mkdir "build" do
