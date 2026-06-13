@@ -8,9 +8,9 @@ class GccMsp430Elf < Formula
 
   depends_on "binutils-msp430-elf"
   depends_on "headers-msp430-elf"
-  depends_on "gmp" => :build if OS.mac?
-  depends_on "mpfr" => :build if OS.mac?
-  depends_on "libmpc" => :build if OS.mac?
+  depends_on "gmp" => :build
+  depends_on "mpfr" => :build
+  depends_on "libmpc" => :build
   depends_on "isl" => :build if OS.mac?
 
   patch :p0 do
