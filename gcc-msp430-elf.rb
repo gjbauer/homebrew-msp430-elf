@@ -39,6 +39,7 @@ class GccMsp430Elf < Formula
     end
 
     # gcc must be built outside of the source directory.
+    ENV.compiler = :gcc
     mkdir "build" do
       system "../configure",
         "--target=#{target}",
