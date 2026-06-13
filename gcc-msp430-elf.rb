@@ -39,8 +39,8 @@ class GccMsp430Elf < Formula
     end
 
     # gcc must be built outside of the source directory.
-    ENV["CC"] = "/opt/homebrew/bin/gcc"
-    ENV["CXX"] = "/opt/homebrew/bin/g++"
+    ENV["CC"] = "/opt/homebrew/bin/gcc-15"
+    ENV["CXX"] = "/opt/homebrew/bin/g++-15"
     mkdir "build" do
       system "../configure",
         "--target=#{target}",
