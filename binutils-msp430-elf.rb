@@ -18,7 +18,7 @@ class BinutilsMsp430Elf < Formula
     target = "msp430-elf"
     target_lib = HOMEBREW_PREFIX/"lib/#{target}/lib"
     target_include = HOMEBREW_PREFIX/"include/#{target}/include"
-    on_mac do
+    on_macos do
       if !Dir.exist?(target_lib) && !Dir.exist?(target_include)
         ohai "You need to manually create #{target_lib} and #{target_include}"
         ohai "You can create these directories with commands such as the following"
