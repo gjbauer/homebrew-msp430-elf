@@ -16,6 +16,16 @@ class BinutilsMsp430Elf < Formula
 
   def install
     target = "msp430-elf"
+    target_lib = HOMEBREW_PREFIX/"lib/#{target}/lib"
+    target_include = HOMEBREW_PREFIX/"include/#{target}/include"
+    on_mac do
+      if !Dir.exist?(target_lib) && !Dir.exist?(target_include)
+        ohai "You need to manually create #{target_lib} and #{target_include}"
+        ohai "You can create these directories with commands such as the following"
+        ohai "sudo mkdir -p /path/to/lib"
+        odie "sudo chown -R $(whoami):admin /path/to/lib"
+      end
+    end
     mkdir "build" do
       system "../configure",
         "--target=#{target}",
@@ -39,10 +49,10 @@ class BinutilsMsp430Elf < Formula
     bin.install_symlink prefix/target/"bin" => target
 
     # Create empty place holders for gcc-msp430-elf
-    target_lib = HOMEBREW_PREFIX/"lib/#{target}/lib"
-    target_include = HOMEBREW_PREFIX/"include/#{target}/include"
-    target_lib.mkpath
-    target_include.mkpath
+    on_linux do
+      target_lib.mkpath
+      target_include.mkpath
+    end
     # Move target/lib to lib/target/lib
     (lib/target).install prefix/target/"lib"
     # Create symlink for msp430-elf-ld to see linker scripts from
