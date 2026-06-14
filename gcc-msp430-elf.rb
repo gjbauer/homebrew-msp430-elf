@@ -43,9 +43,11 @@ class GccMsp430Elf < Formula
     libmpc = Formula["libmpc"] if OS.mac?
     isl = Formula["isl"] if OS.mac?
     
+    # Disable PCH which causes the _host_hooks issue on ARM64
+    ENV["STAGE1_CFLAGS"] = "-g -O2 -DNO_PCH"
+    ENV["BOOT_CFLAGS"] = "-g -O2 -DNO_PCH"
+
     # gcc must be built outside of the source directory.
-    ENV["CC"] = "/opt/homebrew/bin/gcc-15"
-    ENV["CXX"] = "/opt/homebrew/bin/g++-15"
     mkdir "build" do
       on_macos do
         system "../configure",
