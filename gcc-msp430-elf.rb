@@ -8,9 +8,9 @@ class GccMsp430Elf < Formula
 
   depends_on "binutils-msp430-elf"
   depends_on "headers-msp430-elf"
-  depends_on "gmp" => :build
-  depends_on "mpfr" => :build
-  depends_on "libmpc" => :build
+  depends_on "gmp" => :build if OS.mac?
+  depends_on "mpfr" => :build if OS.mac?
+  depends_on "libmpc" => :build if OS.mac?
   depends_on "isl" => :build if OS.mac?
 
   patch :p0 do
@@ -38,6 +38,11 @@ class GccMsp430Elf < Formula
       buildpath.install "libgloss"
     end
 
+    gmp = Formula["gmp"] if OS.mac?
+    mpfr = Formula["mpfr"] if OS.mac?
+    libmpc = Formula["libmpc"] if OS.mac?
+    isl = Formula["isl"] if OS.mac?
+    
     # gcc must be built outside of the source directory.
     ENV["CC"] = "/opt/homebrew/bin/gcc-15"
     ENV["CXX"] = "/opt/homebrew/bin/g++-15"
