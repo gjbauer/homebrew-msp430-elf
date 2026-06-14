@@ -65,42 +65,12 @@ class GccMsp430Elf < Formula
     end
     
     on_macos do
-        # First, let's see the directory structure
-        # Create a temporary directory to examine the tarball contents
-        temp_dir = Dir.mktmpdir
-        system "tar", "xjf", cached_download, "-C", temp_dir
-        
-        # Check what's in the extracted directory
-        extracted_contents = Dir.entries(temp_dir) - [".", ".."]
-        ohai "Extracted contents: #{extracted_contents.join(', ')}"
-        
-        if extracted_contents.length == 1 && File.directory?(File.join(temp_dir, extracted_contents.first))
-        # Tarball has a single top-level directory (common for TI packages)
-        top_dir = File.join(temp_dir, extracted_contents.first)
-        ohai "Found top-level directory: #{extracted_contents.first}"
-        ohai "Its contents: #{Dir.entries(top_dir).inspect}"
-        
-        # Install everything from that directory
-        Dir.entries(top_dir).each do |item|
-            next if item == "." || item == ".."
-            source = File.join(top_dir, item)
-            destination = prefix/item
-            if File.directory?(source)
-            cp_r source, destination
-            else
-            cp source, destination
-            end
-        end
-        else
-        # Tarball extracts directly to files/directories
-        cp_r temp_dir, prefix
-        end
-        
-        FileUtils.remove_entry temp_dir
-        
-        # Verify installation
-        ohai "Installed to: #{prefix}"
-        ohai "Bin directory contents: #{Dir.entries(prefix/'bin').inspect}" if (prefix/'bin').exist?
+        # macOS install process (extract pre-built binaries)
+        # The tarball already contains the full directory structure
+        prefix.install Dir["*"]
+          
+        # The pre-built binaries are in bin/, lib/, etc.
+        # Homebrew will automatically symlink everything in bin/ to HOMEBREW_PREFIX/bin
     end
 
     # Create symlinks to linker scripts from headers-msp430-elf.
