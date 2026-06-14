@@ -47,7 +47,7 @@ class GccMsp430Elf < Formula
     ENV["CC"] = "/opt/homebrew/bin/gcc-15"
     ENV["CXX"] = "/opt/homebrew/bin/g++-15"
     mkdir "build" do
-      os_macos do
+      on_macos do
         system "../configure",
           "--target=#{target}",
           "--program-prefix=#{target}-",
@@ -64,7 +64,7 @@ class GccMsp430Elf < Formula
           "--with-mpfr=#{mpfr.prefix}",
           "--with-mpc=#{libmpc.prefix}"
       end
-      os_linux do
+      on_linux do
         system "../configure",
           "--target=#{target}",
           "--program-prefix=#{target}-",
