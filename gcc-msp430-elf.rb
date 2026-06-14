@@ -42,6 +42,12 @@ class GccMsp430Elf < Formula
     mpfr = Formula["mpfr"] if OS.mac?
     libmpc = Formula["libmpc"] if OS.mac?
     isl = Formula["isl"] if OS.mac?
+
+    # Use system clang for bootstrap on ARM64, not GCC
+    # GCC 9.3.0 has known issues with newer GCC as host compiler on ARM64
+    ENV["CC"] = "clang"
+    ENV["CXX"] = "clang++"
+    ENV["LD"] = "ld"
     
     # Disable PCH which causes the _host_hooks issue on ARM64
     ENV["STAGE1_CFLAGS"] = "-g -O2 -DNO_PCH"
