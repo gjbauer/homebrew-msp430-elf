@@ -47,18 +47,37 @@ class GccMsp430Elf < Formula
     ENV["CC"] = "/opt/homebrew/bin/gcc-15"
     ENV["CXX"] = "/opt/homebrew/bin/g++-15"
     mkdir "build" do
-      system "../configure",
-        "--target=#{target}",
-        "--program-prefix=#{target}-",
-        "--prefix=#{prefix}",
-        "--enable-languages=c,c++",
-        "--disable-nls",
-        "--enable-inifini-array",
-        "--enable-target-optspace",
-        "--enable-newlib-nano-formatted-io",
-        "--with-system-zlib",
-        "--with-as=#{HOMEBREW_PREFIX}/bin/#{target}-as",
-        "--with-ld=#{HOMEBREW_PREFIX}/bin/#{target}-ld"
+      os_macos do
+        system "../configure",
+          "--target=#{target}",
+          "--program-prefix=#{target}-",
+          "--prefix=#{prefix}",
+          "--enable-languages=c,c++",
+          "--disable-nls",
+          "--enable-inifini-array",
+          "--enable-target-optspace",
+          "--enable-newlib-nano-formatted-io",
+          "--with-system-zlib",
+          "--with-as=#{HOMEBREW_PREFIX}/bin/#{target}-as",
+          "--with-ld=#{HOMEBREW_PREFIX}/bin/#{target}-ld"
+          "--with-gmp=#{gmp.prefix}",
+          "--with-mpfr=#{mpfr.prefix}",
+          "--with-mpc=#{libmpc.prefix}"
+      end
+      os_linux do
+        system "../configure",
+          "--target=#{target}",
+          "--program-prefix=#{target}-",
+          "--prefix=#{prefix}",
+          "--enable-languages=c,c++",
+          "--disable-nls",
+          "--enable-inifini-array",
+          "--enable-target-optspace",
+          "--enable-newlib-nano-formatted-io",
+          "--with-system-zlib",
+          "--with-as=#{HOMEBREW_PREFIX}/bin/#{target}-as",
+          "--with-ld=#{HOMEBREW_PREFIX}/bin/#{target}-ld"
+      end
       system "make"
       system "make", "install"
     end
