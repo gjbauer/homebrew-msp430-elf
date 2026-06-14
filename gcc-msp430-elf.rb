@@ -59,7 +59,7 @@ class GccMsp430Elf < Formula
           "--enable-newlib-nano-formatted-io",
           "--with-system-zlib",
           "--with-as=#{HOMEBREW_PREFIX}/bin/#{target}-as",
-          "--with-ld=#{HOMEBREW_PREFIX}/bin/#{target}-ld"
+          "--with-ld=#{HOMEBREW_PREFIX}/bin/#{target}-ld",
           "--with-gmp=#{gmp.prefix}",
           "--with-mpfr=#{mpfr.prefix}",
           "--with-mpc=#{libmpc.prefix}"
