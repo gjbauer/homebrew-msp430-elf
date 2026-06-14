@@ -12,6 +12,7 @@ class GccMsp430Elf < Formula
   depends_on "mpfr" => :build if OS.mac?
   depends_on "libmpc" => :build if OS.mac?
   depends_on "isl" => :build if OS.mac?
+  depends_on "gcc" => :build if OS.mac?
 
   patch :p0 do
     url "https://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/9_3_1_2/export/msp430-gcc-9.3.1.11-source-patches.tar.bz2"
@@ -43,15 +44,17 @@ class GccMsp430Elf < Formula
     libmpc = Formula["libmpc"] if OS.mac?
     isl = Formula["isl"] if OS.mac?
 
-    # Use system clang for bootstrap on ARM64, not GCC
-    # GCC 9.3.0 has known issues with newer GCC as host compiler on ARM64
-    ENV["CC"] = "clang"
-    ENV["CXX"] = "clang++"
-    ENV["LD"] = "ld"
+    on_macos do
+      # Use GCC instead of Clang - this avoids the islower macro conflict
+      # Install GCC if not already present - macOS
+      gcc = Formula["gcc"]
+      ENV["CC"] = gcc.opt_bin/"gcc-#{gcc.version.major}"
+      ENV["CXX"] = gcc.opt_bin/"g++-#{gcc.version.major}"
     
-    # Disable PCH which causes the _host_hooks issue on ARM64
-    ENV["STAGE1_CFLAGS"] = "-g -O2 -DNO_PCH"
-    ENV["BOOT_CFLAGS"] = "-g -O2 -DNO_PCH"
+      # Critical: Undefine the problematic macros before building
+      ENV["CFLAGS"] = "-U_FORTIFY_SOURCE -D_POSIX_C_SOURCE=200809L"
+      ENV["CXXFLAGS"] = "-U_FORTIFY_SOURCE -D_POSIX_C_SOURCE=200809L"
+    end
 
     # gcc must be built outside of the source directory.
     mkdir "build" do
@@ -70,7 +73,10 @@ class GccMsp430Elf < Formula
           "--with-ld=#{HOMEBREW_PREFIX}/bin/#{target}-ld",
           "--with-gmp=#{gmp.prefix}",
           "--with-mpfr=#{mpfr.prefix}",
-          "--with-mpc=#{libmpc.prefix}"
+          "--with-mpc=#{libmpc.prefix}",
+          "--disable-libstdcxx-pch",
+          "--disable-build-poststage1-with-cxx",
+          "--disable-host-shared"
       end
       on_linux do
         system "../configure",
