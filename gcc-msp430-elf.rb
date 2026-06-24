@@ -38,6 +38,11 @@ class GccMsp430Elf < Formula
       buildpath.install "libgloss"
     end
 
+    # Use the system's GCC instead of trying to find gcc-16
+    ENV["CC"] = "gcc"
+    ENV["CXX"] = "g++"
+    ENV["CPP"] = "gcc -E"
+    
     # gcc must be built outside of the source directory.
     mkdir "build" do
       system "../configure",
@@ -46,7 +51,7 @@ class GccMsp430Elf < Formula
         "--prefix=#{prefix}",
         "--enable-languages=c,c++",
         "--disable-nls",
-        "--enable-inifini-array",
+        "--enable-initfini-array",  # Fixed typo from "inifini"
         "--enable-target-optspace",
         "--enable-newlib-nano-formatted-io",
         "--with-system-zlib",
