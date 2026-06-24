@@ -33,16 +33,17 @@ class GccMsp430Elf < Formula
   def install
     target = "msp430-elf"
 
-    # Stage newlib resources
-    newlib_resource = resource("newlib")
-    newlib_resource.stage do
-      # Copy newlib and libgloss into the GCC source directory
+    # Stage newlib resources into the GCC source directory
+    resource("newlib").stage do
       (buildpath/"newlib").install Dir["newlib/*"]
       (buildpath/"libgloss").install Dir["libgloss/*"]
     end
 
     # Create a separate build directory
     mkdir "build" do
+      # Find the installed binutils
+      binutils_prefix = Formula["binutils-msp430-elf"].opt_prefix
+      
       # Configure GCC
       system "../configure",
         "--target=#{target}",
@@ -50,12 +51,12 @@ class GccMsp430Elf < Formula
         "--prefix=#{prefix}",
         "--enable-languages=c,c++",
         "--disable-nls",
-        "--enable-initfini-array",  # Fixed typo
+        "--enable-initfini-array",
         "--enable-target-optspace",
         "--enable-newlib-nano-formatted-io",
         "--with-system-zlib",
-        "--with-as=#{HOMEBREW_PREFIX}/bin/#{target}-as",
-        "--with-ld=#{HOMEBREW_PREFIX}/bin/#{target}-ld"
+        "--with-as=#{binutils_prefix}/bin/#{target}-as",
+        "--with-ld=#{binutils_prefix}/bin/#{target}-ld"
       
       system "make"
       system "make", "install"
@@ -66,7 +67,8 @@ class GccMsp430Elf < Formula
     man7.rmtree if man7.exist?
 
     # Create symlinks to linker scripts from headers-msp430-elf
-    ldscripts = "#{HOMEBREW_PREFIX}/lib/#{target}/lib/ldscripts"
+    headers_prefix = Formula["headers-msp430-elf"].opt_prefix
+    ldscripts = "#{headers_prefix}/lib/#{target}/lib/ldscripts"
     target_lib_dir = prefix/target/"lib"
     target_lib_dir.mkpath unless target_lib_dir.exist?
     
