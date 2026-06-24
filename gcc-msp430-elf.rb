@@ -14,6 +14,8 @@ class GccMsp430Elf < Formula
 
   depends_on "binutils-msp430-elf"
   depends_on "headers-msp430-elf"
+  
+  target = "msp430-elf"
 
     on_linux do
       patch :p0 do
@@ -34,7 +36,6 @@ class GccMsp430Elf < Formula
       end
 
       def install
-      target = "msp430-elf"
 
       resource("newlib").stage do
           buildpath.install "newlib"
