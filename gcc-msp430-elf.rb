@@ -30,7 +30,30 @@ class GccMsp430Elf < Formula
     end
   end
 
+  # Disable Homebrew's superenv compiler wrapper
+  def setup_environment
+    # Remove Homebrew's compiler shims from PATH
+    ENV.delete("HOMEBREW_CC")
+    ENV.delete("HOMEBREW_CXX")
+    
+    # Force use of system compilers
+    ENV["CC"] = "/usr/bin/gcc"
+    ENV["CXX"] = "/usr/bin/g++"
+    ENV["CPP"] = "/usr/bin/gcc -E"
+    
+    # Also set the build system's compiler detection
+    ENV["GCC"] = "/usr/bin/gcc"
+    ENV["CXX"] = "/usr/bin/g++"
+    
+    # Remove any compiler flags that might interfere
+    ENV["CFLAGS"] = ""
+    ENV["CXXFLAGS"] = ""
+    ENV["LDFLAGS"] = ""
+  end
+
   def install
+    setup_environment
+    
     target = "msp430-elf"
 
     resource("newlib").stage do
@@ -38,25 +61,24 @@ class GccMsp430Elf < Formula
       buildpath.install "libgloss"
     end
 
-    # Use the system's GCC instead of trying to find gcc-16
-    ENV["CC"] = "gcc"
-    ENV["CXX"] = "g++"
-    ENV["CPP"] = "gcc -E"
-    
     # gcc must be built outside of the source directory.
     mkdir "build" do
+      # Explicitly set compiler paths in the configure command
       system "../configure",
         "--target=#{target}",
         "--program-prefix=#{target}-",
         "--prefix=#{prefix}",
         "--enable-languages=c,c++",
         "--disable-nls",
-        "--enable-initfini-array",  # Fixed typo from "inifini"
+        "--enable-initfini-array",
         "--enable-target-optspace",
         "--enable-newlib-nano-formatted-io",
         "--with-system-zlib",
         "--with-as=#{HOMEBREW_PREFIX}/bin/#{target}-as",
-        "--with-ld=#{HOMEBREW_PREFIX}/bin/#{target}-ld"
+        "--with-ld=#{HOMEBREW_PREFIX}/bin/#{target}-ld",
+        "--build=aarch64-unknown-linux-gnu",
+        "--host=aarch64-unknown-linux-gnu"
+      
       system "make"
       system "make", "install"
     end
