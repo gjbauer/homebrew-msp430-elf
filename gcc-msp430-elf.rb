@@ -45,8 +45,8 @@ class GccMsp430Elf < Formula
     headers_prefix = Formula["headers-msp430-elf"].opt_prefix
 
     # Set compiler environment variables
-    ENV["CC"] = "gcc"
-    ENV["CXX"] = "g++"
+    ENV["CC"] = "clang"
+    ENV["CXX"] = "clang++"
     ENV["AR"] = "ar"
     ENV["RANLIB"] = "ranlib"
 
@@ -85,7 +85,7 @@ class GccMsp430Elf < Formula
         "--host=aarch64-unknown-linux-gnu"
 
       # Build with verbose output
-      system "make", "V=1", "-j#{ENV.make_jobs}", "all"
+      system "make", "-j#{ENV.make_jobs}", "all"
       system "make", "install"
     end
 
