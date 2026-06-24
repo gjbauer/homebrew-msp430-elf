@@ -4,14 +4,15 @@ class GccMsp430Elf < Formula
   mirror "https://ftpmirror.gnu.org/gcc/gcc-9.3.0/gcc-9.3.0.tar.xz"
   sha256 "71e197867611f6054aa1119b13a0c0abac12834765fe2d81f35ac57f84f742d1"
   version "9.3.1-11"
-  revision 1
+  revision 4
 
   depends_on "binutils-msp430-elf"
   depends_on "headers-msp430-elf"
-  depends_on "gmp" => :build if OS.mac?
-  depends_on "mpfr" => :build if OS.mac?
-  depends_on "libmpc" => :build if OS.mac?
-  depends_on "isl" => :build if OS.mac?
+  depends_on "gmp"
+  depends_on "mpfr"
+  depends_on "libmpc"
+  depends_on "isl"
+  depends_on "texinfo" => :build
 
   patch :p0 do
     url "https://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/9_3_1_2/export/msp430-gcc-9.3.1.11-source-patches.tar.bz2"
@@ -39,11 +40,18 @@ class GccMsp430Elf < Formula
       (buildpath/"libgloss").install Dir["libgloss/*"]
     end
 
+    # Get paths to dependencies
+    binutils_prefix = Formula["binutils-msp430-elf"].opt_prefix
+    headers_prefix = Formula["headers-msp430-elf"].opt_prefix
+
+    # Set compiler environment variables
+    ENV["CC"] = "gcc"
+    ENV["CXX"] = "g++"
+    ENV["AR"] = "ar"
+    ENV["RANLIB"] = "ranlib"
+
     # Create a separate build directory
     mkdir "build" do
-      # Find the installed binutils
-      binutils_prefix = Formula["binutils-msp430-elf"].opt_prefix
-      
       # Configure GCC
       system "../configure",
         "--target=#{target}",
@@ -51,14 +59,33 @@ class GccMsp430Elf < Formula
         "--prefix=#{prefix}",
         "--enable-languages=c,c++",
         "--disable-nls",
+        "--disable-shared",
+        "--disable-threads",
+        "--disable-libssp",
+        "--disable-libgomp",
+        "--disable-libquadmath",
+        "--disable-libatomic",
+        "--disable-libstdcxx-pch",
+        "--disable-libstdcxx-verbose",
         "--enable-initfini-array",
         "--enable-target-optspace",
         "--enable-newlib-nano-formatted-io",
         "--with-system-zlib",
+        "--with-gmp=#{Formula["gmp"].opt_prefix}",
+        "--with-mpfr=#{Formula["mpfr"].opt_prefix}",
+        "--with-mpc=#{Formula["libmpc"].opt_prefix}",
+        "--with-isl=#{Formula["isl"].opt_prefix}",
         "--with-as=#{binutils_prefix}/bin/#{target}-as",
-        "--with-ld=#{binutils_prefix}/bin/#{target}-ld"
-      
-      system "make"
+        "--with-ld=#{binutils_prefix}/bin/#{target}-ld",
+        "--with-headers=#{headers_prefix}/include/#{target}",
+        "--with-newlib",
+        "--with-build-time-tools=#{binutils_prefix}/bin",
+        "--enable-multilib",
+        "--build=aarch64-unknown-linux-gnu",
+        "--host=aarch64-unknown-linux-gnu"
+
+      # Build with verbose output
+      system "make", "V=1", "-j#{ENV.make_jobs}", "all"
       system "make", "install"
     end
 
@@ -67,8 +94,7 @@ class GccMsp430Elf < Formula
     man7.rmtree if man7.exist?
 
     # Create symlinks to linker scripts from headers-msp430-elf
-    headers_prefix = Formula["headers-msp430-elf"].opt_prefix
-    ldscripts = "#{headers_prefix}/lib/#{target}/lib/ldscripts"
+    ldscripts = "#{headers_prefix}/lib/#{target}/ldscripts"
     target_lib_dir = prefix/target/"lib"
     target_lib_dir.mkpath unless target_lib_dir.exist?
     
