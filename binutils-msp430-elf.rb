@@ -4,7 +4,7 @@ class BinutilsMsp430Elf < Formula
   mirror "https://ftpmirror.gnu.org/binutils/binutils-2.34.tar.bz2"
   sha256 "89f010078b6cf69c23c27897d686055ab89b198dddf819efb0a4f2c38a0b36e6"
   version "2.34-50"
-  revision 2
+  revision 3
 
   depends_on "texinfo" => :build
 
@@ -16,25 +16,14 @@ class BinutilsMsp430Elf < Formula
 
   def install
     target = "msp430-elf"
-    target_lib = HOMEBREW_PREFIX/"lib/#{target}/lib"
-    target_include = HOMEBREW_PREFIX/"include/#{target}/include"
-    on_macos do
-      if !Dir.exist?(target_lib) && !Dir.exist?(target_include)
-        ohai "You need to manually create #{target_lib} and #{target_include}"
-        ohai "You can create these directories with commands such as the following"
-        ohai "sudo mkdir -p /path/to/lib"
-        ohai "sudo chown -R $(whoami):admin /path/to/lib"
-        raise FormulaInstallationError, "Failed because of missing installation directories."
-      end
-    end
+    
+    # Build binutils
     mkdir "build" do
       system "../configure",
         "--target=#{target}",
         "--program-prefix=#{target}-",
         "--prefix=#{prefix}",
-        "--enable-languages=c,c++",
         "--disable-nls",
-        "--enable-inifini-array",
         "--disable-sim",
         "--disable-gdb",
         "--disable-werror",
@@ -43,21 +32,23 @@ class BinutilsMsp430Elf < Formula
       system "make", "install"
     end
 
-    # Remove unnecessary files.
-    info.rmtree
+    # Remove unnecessary files
+    info.rmtree if info.exist?
 
     # Create symlink to no-prefix binaries as bin/target
     bin.install_symlink prefix/target/"bin" => target
 
-    # Create empty place holders for gcc-msp430-elf
-    on_linux do
-      target_lib.mkpath
-      target_include.mkpath
+    # Install target libraries to the correct location
+    # Move target/lib to lib/target/lib (within the formula's prefix)
+    if (prefix/target/"lib").exist?
+      (lib/target).mkpath
+      (lib/target).install (prefix/target/"lib").children
+      (prefix/target/"lib").rmtree
     end
-    # Move target/lib to lib/target/lib
-    (lib/target).install prefix/target/"lib"
-    # Create symlink for msp430-elf-ld to see linker scripts from
-    # headers-msp430-elf.
-    (prefix/target).install_symlink target_lib
+
+    # Create empty placeholders for gcc-msp430-elf to use
+    # These should be within the formula's prefix, not HOMEBREW_PREFIX
+    (lib/target/"ldscripts").mkpath
+    (include/target).mkpath
   end
 end
